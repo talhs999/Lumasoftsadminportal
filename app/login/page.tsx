@@ -22,17 +22,32 @@ export default function LoginPage() {
         }
 
         setLoading(true);
-        const result = await signIn("credentials", {
-            email,
-            password,
-            redirect: false,
-        });
+        try {
+            const result = await signIn("credentials", {
+                email,
+                password,
+                redirect: false,
+            });
 
-        if (result?.error) {
-            setError(result.error);
+            if (result?.error) {
+                setError(
+                    result.error === "CredentialsSignin"
+                        ? "Invalid email or password."
+                        : result.error
+                );
+                setLoading(false);
+            } else if (result?.ok) {
+                // Refresh the router so middleware picks up the new session cookie,
+                // then navigate to dashboard.
+                router.refresh();
+                router.push("/dashboard");
+            } else {
+                setError("Something went wrong. Please try again.");
+                setLoading(false);
+            }
+        } catch {
+            setError("Network error. Please check your connection and try again.");
             setLoading(false);
-        } else {
-            router.push("/dashboard");
         }
     }
 
