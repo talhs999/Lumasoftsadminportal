@@ -69,7 +69,7 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
         maxAge: 7 * 24 * 60 * 60, // 7 days
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET || "fallback-secret-luma-admin-portal-123",
 };
 
 export async function requireAuth() {
