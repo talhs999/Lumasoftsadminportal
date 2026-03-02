@@ -6,16 +6,6 @@
 
 @layer base {
   :root {
-    --brand-primary: #f8fafc;
-    --brand-secondary: #ffffff;
-    --brand-accent: #84cc16;
-    --brand-accentHover: #65a30d;
-    --brand-text: #0f172a;
-    --brand-border: #e2e8f0;
-    --brand-muted: #64748b;
-  }
-
-  .dark {
     --brand-primary: #0A0A0A;
     --brand-secondary: #171717;
     --brand-accent: #b7e80f;
@@ -23,6 +13,16 @@
     --brand-text: #FFFFFF;
     --brand-border: #262626;
     --brand-muted: #A3A3A3;
+  }
+
+  .light {
+    --brand-primary: #f8fafc;
+    --brand-secondary: #ffffff;
+    --brand-accent: #84cc16;
+    --brand-accentHover: #65a30d;
+    --brand-text: #0f172a;
+    --brand-border: #e2e8f0;
+    --brand-muted: #64748b;
   }
 }
 
