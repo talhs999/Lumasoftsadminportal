@@ -138,7 +138,6 @@ export default async function DashboardPage() {
     // Employee Dashboard
     const [myProjects, myTasks] = await Promise.all([
         prisma.project.findMany({
-            where: { createdById: userId },
             orderBy: { createdAt: "desc" },
             include: { client: true },
         }),
