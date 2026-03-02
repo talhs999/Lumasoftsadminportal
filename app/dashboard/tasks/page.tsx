@@ -13,8 +13,11 @@ export default async function TasksPage() {
     const tasks = await prisma.task.findMany({
         where:
             role === "admin"
-                ? undefined
-                : { assignedToId: userId },
+                ? { isDeletedByAdmin: false }
+                : {
+                    assignedToId: userId,
+                    isDeletedByEmployee: false
+                },
         include: {
             project: { select: { title: true } },
             assignedTo: { select: { fullName: true } },

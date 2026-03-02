@@ -142,7 +142,10 @@ export default async function DashboardPage() {
             include: { client: true },
         }),
         prisma.task.findMany({
-            where: { assignedToId: userId },
+            where: {
+                assignedToId: userId,
+                isDeletedByEmployee: false
+            },
             orderBy: { dueDate: "asc" },
             include: { project: true },
         }),
