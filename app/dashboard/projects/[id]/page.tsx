@@ -35,12 +35,6 @@ export default async function ProjectDetailPage({
 
     if (!project) notFound();
 
-    // Access check for employees
-    if (role === "employee" && project.createdById !== userId) {
-        const isAssigned = project.tasks.some((t: any) => t.assignedToId === userId);
-        if (!isAssigned) redirect("/dashboard/projects");
-    }
-
     const canEdit = role === "admin" || project.createdById === userId;
     const clients = await prisma.client.findMany({
         select: { id: true, name: true },
