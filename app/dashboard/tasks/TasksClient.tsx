@@ -60,6 +60,7 @@ export default function TasksClient({ tasks, role, userId }: TasksClientProps) {
     const [activeTab, setActiveTab] = useState<"all" | "history">("all");
     const [viewTask, setViewTask] = useState<TaskWithRelations | null>(null);
     const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
+    const [deleteActionBy, setDeleteActionBy] = useState<"admin" | "employee">("admin");
     const [deleteLoading, setDeleteLoading] = useState(false);
 
     // Filter based on tab
@@ -73,10 +74,24 @@ export default function TasksClient({ tasks, role, userId }: TasksClientProps) {
         if (!deleteTaskId) return;
         setDeleteLoading(true);
         try {
-            const res = await fetch(`/api/tasks/${deleteTaskId}`, { method: "DELETE" });
-            if (res.ok) {
-                setDeleteTaskId(null);
-                router.refresh();
+            if (deleteActionBy === "admin") {
+                // Admin soft delete
+                const res = await fetch(`/api/tasks/${deleteTaskId}`, { method: "DELETE" });
+                if (res.ok) {
+                    setDeleteTaskId(null);
+                    router.refresh();
+                }
+            } else {
+                // Employee delete from history
+                const res = await fetch(`/api/tasks/${deleteTaskId}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ isDeletedByEmployee: true }),
+                });
+                if (res.ok) {
+                    setDeleteTaskId(null);
+                    router.refresh();
+                }
             }
         } finally {
             setDeleteLoading(false);
@@ -93,8 +108,8 @@ export default function TasksClient({ tasks, role, userId }: TasksClientProps) {
                     <button
                         onClick={() => setActiveTab("all")}
                         className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "all"
-                                ? "bg-brand-accent text-black"
-                                : "text-brand-muted hover:text-brand-text"
+                            ? "bg-brand-accent text-black"
+                            : "text-brand-muted hover:text-brand-text"
                             }`}
                     >
                         {role === "admin" ? "All Tasks" : "My Tasks"}
@@ -103,8 +118,8 @@ export default function TasksClient({ tasks, role, userId }: TasksClientProps) {
                     <button
                         onClick={() => setActiveTab("history")}
                         className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 ${activeTab === "history"
-                                ? "bg-brand-accent text-black"
-                                : "text-brand-muted hover:text-brand-text"
+                            ? "bg-brand-accent text-black"
+                            : "text-brand-muted hover:text-brand-text"
                             }`}
                     >
                         <CheckCircle2 size={13} />
@@ -167,16 +182,30 @@ export default function TasksClient({ tasks, role, userId }: TasksClientProps) {
                                                 <Eye size={15} />
                                             </button>
 
-                                            {/* Delete Button — admin only */}
-                                            {role === "admin" && (
+                                            {/* Delete Button — Admin or Employee in History */}
+                                            {role === "admin" ? (
                                                 <button
-                                                    onClick={() => setDeleteTaskId(task.id)}
+                                                    onClick={() => {
+                                                        setDeleteActionBy("admin");
+                                                        setDeleteTaskId(task.id);
+                                                    }}
                                                     className="p-1.5 rounded-lg text-brand-muted hover:text-red-500 hover:bg-red-500/10 transition-colors"
                                                     title="Delete Task"
                                                 >
                                                     <Trash2 size={15} />
                                                 </button>
-                                            )}
+                                            ) : activeTab === "history" && task.status === "completed" ? (
+                                                <button
+                                                    onClick={() => {
+                                                        setDeleteActionBy("employee");
+                                                        setDeleteTaskId(task.id);
+                                                    }}
+                                                    className="p-1.5 rounded-lg text-brand-muted hover:text-red-500 hover:bg-red-500/10 transition-colors"
+                                                    title="Remove from History"
+                                                >
+                                                    <Trash2 size={15} />
+                                                </button>
+                                            ) : null}
                                         </div>
                                     </td>
                                 </tr>
@@ -326,7 +355,9 @@ export default function TasksClient({ tasks, role, userId }: TasksClientProps) {
                             </div>
                         </div>
                         <p className="text-sm text-brand-muted mb-6 bg-brand-primary rounded-xl p-3 border border-brand-border">
-                            Are you sure you want to permanently delete this task?
+                            {deleteActionBy === "admin"
+                                ? "Are you sure you want to permanently delete this task?"
+                                : "Are you sure you want to remove this task from your history?"}
                         </p>
                         <div className="flex gap-3">
                             <button

@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
-import { Menu, LogOut, Bell, Sun, Moon } from "lucide-react";
+import { Menu, LogOut, Sun, Moon } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
 
 interface NavbarProps {
     title: string;
@@ -56,9 +57,7 @@ export default function Navbar({
                 </button>
 
                 {/* Notification bell */}
-                <button className="p-2 rounded-lg hover:bg-brand-border text-brand-muted transition-colors relative">
-                    <Bell size={18} />
-                </button>
+                <NotificationBell />
 
                 {/* User info */}
                 <div className="flex items-center gap-2.5 pl-3 border-l border-brand-border">

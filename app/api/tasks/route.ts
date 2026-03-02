@@ -12,7 +12,13 @@ export async function GET() {
         const role = (session.user as any).role;
 
         const tasks = await prisma.task.findMany({
-            where: role === "admin" ? undefined : { assignedToId: userId },
+            where:
+                role === "admin"
+                    ? { isDeletedByAdmin: false }
+                    : {
+                        assignedToId: userId,
+                        isDeletedByEmployee: false,
+                    },
             include: {
                 project: { select: { title: true } },
                 assignedTo: { select: { fullName: true } },
@@ -53,6 +59,17 @@ export async function POST(request: NextRequest) {
                 createdById: userId,
             },
         });
+
+        // Send notification to assigned employee
+        if (assignedToId) {
+            await prisma.notification.create({
+                data: {
+                    userId: assignedToId,
+                    title: "New Task Assigned",
+                    message: `You have been assigned a new task: "${title}"`,
+                },
+            });
+        }
 
         return NextResponse.json(task, { status: 201 });
     } catch {

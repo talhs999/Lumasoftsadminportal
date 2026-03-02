@@ -22,10 +22,20 @@ export async function PATCH(
             if (task.assignedToId !== userId) {
                 return NextResponse.json({ error: "Forbidden" }, { status: 403 });
             }
-            const { status } = await request.json();
+            const body = await request.json();
+
+            // Employee soft-deleting from history
+            if (body.isDeletedByEmployee !== undefined) {
+                const updated = await prisma.task.update({
+                    where: { id: params.id },
+                    data: { isDeletedByEmployee: body.isDeletedByEmployee },
+                });
+                return NextResponse.json(updated);
+            }
+
             const updated = await prisma.task.update({
                 where: { id: params.id },
-                data: { status },
+                data: { status: body.status },
             });
             return NextResponse.json(updated);
         }
@@ -46,6 +56,7 @@ export async function PATCH(
     }
 }
 
+// Admin DELETE = soft delete (isDeletedByAdmin = true)
 export async function DELETE(
     _request: NextRequest,
     { params }: { params: { id: string } }
@@ -57,8 +68,13 @@ export async function DELETE(
         const role = (session.user as any).role;
         if (role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-        await prisma.task.delete({ where: { id: params.id } });
-        return NextResponse.json({ success: true });
+        // Soft delete — keep in employee history
+        const updated = await prisma.task.update({
+            where: { id: params.id },
+            data: { isDeletedByAdmin: true },
+        });
+
+        return NextResponse.json(updated);
     } catch {
         return NextResponse.json({ error: "Failed to delete task" }, { status: 500 });
     }
