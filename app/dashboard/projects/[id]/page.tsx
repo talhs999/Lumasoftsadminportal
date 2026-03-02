@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Edit, Calendar, DollarSign, User, Plus } from "lucide-react";
+import { ArrowLeft, Edit, Calendar, Banknote, User, Plus } from "lucide-react";
 import EditProjectClient from "./EditProjectClient";
 import TaskStatusUpdater from "../../tasks/TaskStatusUpdater";
 import DeleteProjectButton from "../DeleteProjectButton";
@@ -104,7 +104,7 @@ export default async function ProjectDetailPage({
                         </div>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                        <DollarSign size={15} className="text-brand-muted" />
+                        <Banknote size={15} className="text-brand-muted" />
                         <div>
                             <p className="text-xs text-brand-muted">Budget</p>
                             <p className="font-medium text-brand-text">

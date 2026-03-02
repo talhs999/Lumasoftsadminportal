@@ -5,7 +5,7 @@ import DashboardCard from "@/components/DashboardCard";
 import {
     Users,
     FolderKanban,
-    DollarSign,
+    Banknote,
     Clock,
     CheckSquare,
     AlertCircle,
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
                     <DashboardCard
                         title="Monthly Revenue (PKR)"
                         value={monthlyRevenue}
-                        icon={DollarSign}
+                        icon={Banknote}
                         color="green"
                     />
                 </div>

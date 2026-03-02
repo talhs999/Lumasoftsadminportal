@@ -52,7 +52,7 @@ export default function DashboardCard({
                     <p className="text-sm font-medium text-brand-muted">{title}</p>
                     <p className="text-3xl font-bold text-brand-text mt-1.5 group-hover:text-brand-accent transition-colors">
                         {typeof value === "number" && title.toLowerCase().includes("revenue")
-                            ? `$${value.toLocaleString()}`
+                            ? `Rs ${value.toLocaleString()}`
                             : value}
                     </p>
                     {trend && (
