@@ -11,15 +11,6 @@ export default async function ProjectsPage() {
     const role = (session?.user as any)?.role;
 
     const projects = await prisma.project.findMany({
-        where:
-            role === "admin"
-                ? undefined
-                : {
-                    OR: [
-                        { createdById: userId },
-                        { tasks: { some: { assignedToId: userId } } },
-                    ],
-                },
         include: {
             client: { select: { name: true } },
             createdBy: { select: { fullName: true } },
