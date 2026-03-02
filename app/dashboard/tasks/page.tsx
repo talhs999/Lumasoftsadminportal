@@ -3,7 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import TaskStatusUpdater from "./TaskStatusUpdater";
+import TasksClient from "./TasksClient";
 
 export default async function TasksPage() {
     const session = await getServerSession(authOptions);
@@ -23,8 +23,16 @@ export default async function TasksPage() {
         orderBy: { createdAt: "desc" },
     });
 
+    // Serialise dates for the client
+    const serialised = tasks.map((t) => ({
+        ...t,
+        dueDate: t.dueDate ? t.dueDate.toISOString() : null,
+        createdAt: t.createdAt.toISOString(),
+    }));
+
     return (
         <div className="space-y-6">
+            {/* Page header */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-xl font-bold text-brand-text">
@@ -43,64 +51,8 @@ export default async function TasksPage() {
                 )}
             </div>
 
-            <div className="bg-brand-secondary rounded-xl border border-brand-border shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="bg-white/5 text-xs text-brand-muted uppercase tracking-wider">
-                                <th className="text-left px-6 py-4">Title</th>
-                                <th className="text-left px-6 py-4">Project</th>
-                                <th className="text-left px-6 py-4">Priority</th>
-                                <th className="text-left px-6 py-4">Status</th>
-                                <th className="text-left px-6 py-4">Due Date</th>
-                                <th className="text-left px-6 py-4">Assigned To</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-brand-border">
-                            {tasks.map((task: any) => (
-                                <tr key={task.id} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-6 py-4 font-medium text-brand-text text-sm">
-                                        {task.title}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-brand-muted">
-                                        {task.project.title}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`priority-${task.priority} capitalize`}>
-                                            {task.priority}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <TaskStatusUpdater
-                                            taskId={task.id}
-                                            currentStatus={task.status}
-                                            canEdit={role === "admin" || task.assignedToId === userId}
-                                        />
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-brand-muted">
-                                        {task.dueDate
-                                            ? new Date(task.dueDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-                                            : "—"}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-brand-muted">
-                                        {task.assignedTo?.fullName ?? "Unassigned"}
-                                    </td>
-                                </tr>
-                            ))}
-                            {tasks.length === 0 && (
-                                <tr>
-                                    <td
-                                        colSpan={6}
-                                        className="text-center py-14 text-brand-muted text-sm"
-                                    >
-                                        No tasks found
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            {/* Client component handles tabs, view modal, delete */}
+            <TasksClient tasks={serialised as any} role={role} userId={userId} />
         </div>
     );
 }
