@@ -57,15 +57,15 @@ export default function LoginPage() {
                 {/* Logo */}
                 <div className="flex justify-center mb-8">
                     <div className="relative">
-                        {/* Green glow behind circle */}
-                        <div className="absolute inset-0 rounded-full bg-brand-accent/15 blur-2xl scale-110 pointer-events-none" />
-                        {/* Circle */}
-                        <div className="relative w-36 h-36 rounded-full bg-black border-2 border-brand-accent/50 shadow-2xl flex items-center justify-center">
+                        {/* Subtle green glow */}
+                        <div className="absolute inset-0 rounded-full bg-brand-accent/20 blur-xl pointer-events-none" />
+                        {/* Circle container with dark bg */}
+                        <div className="relative w-32 h-32 rounded-full bg-[#0e0e0e] border-2 border-brand-accent/70 shadow-[0_0_30px_rgba(183,229,58,0.25)] flex items-center justify-center overflow-hidden">
                             <Image
                                 src="/logo.png"
                                 alt="Luma Softs Logo"
-                                width={120}
-                                height={120}
+                                width={110}
+                                height={110}
                                 className="object-contain"
                                 priority
                                 quality={100}
