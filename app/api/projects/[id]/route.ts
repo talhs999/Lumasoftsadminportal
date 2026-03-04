@@ -3,6 +3,31 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { mockProjects } from "@/lib/mock-data";
+
+export async function GET(
+    _request: NextRequest,
+    { params }: { params: { id: string } }
+) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+        if (session.user.isTestUser) {
+            const project = mockProjects.find((p) => p.id === params.id) ?? mockProjects[0];
+            return NextResponse.json(project);
+        }
+
+        const project = await prisma.project.findUnique({
+            where: { id: params.id },
+            include: { client: true, createdBy: true, tasks: { include: { assignedTo: true } } },
+        });
+        if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
+        return NextResponse.json(project);
+    } catch {
+        return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 });
+    }
+}
 
 export async function PATCH(
     request: NextRequest,
@@ -12,13 +37,19 @@ export async function PATCH(
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const userId = (session.user as any).id;
-        const role = (session.user as any).role;
+        // Test Mode: simulate update without hitting DB
+        if (session.user.isTestUser) {
+            const body = await request.json();
+            const mock = mockProjects.find((p) => p.id === params.id) ?? mockProjects[0];
+            return NextResponse.json({ ...mock, ...body, _testMode: true });
+        }
+
+        const userId = session.user.id;
+        const role = session.user.role;
 
         const project = await prisma.project.findUnique({ where: { id: params.id } });
         if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-        // Role check
         if (role !== "admin" && project.createdById !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
@@ -52,7 +83,12 @@ export async function DELETE(
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const role = (session.user as any).role;
+        // Test Mode: simulate delete without hitting DB
+        if (session.user.isTestUser) {
+            return NextResponse.json({ success: true, _testMode: true });
+        }
+
+        const role = session.user.role;
         if (role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
         await prisma.project.delete({ where: { id: params.id } });

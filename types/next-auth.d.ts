@@ -8,6 +8,7 @@ declare module "next-auth" {
             name: string;
             role: string;
             username: string;
+            isTestUser: boolean;
         };
     }
 
@@ -15,6 +16,7 @@ declare module "next-auth" {
         id: string;
         role: string;
         username: string;
+        isTestUser: boolean;
     }
 }
 
@@ -23,5 +25,6 @@ declare module "next-auth/jwt" {
         id: string;
         role: string;
         username: string;
+        isTestUser: boolean;
     }
 }

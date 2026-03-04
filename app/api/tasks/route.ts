@@ -2,14 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { mockTasks } from "@/lib/mock-data";
 
 export async function GET() {
     try {
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const userId = (session.user as any).id;
-        const role = (session.user as any).role;
+        const userId = session.user.id;
+        const role = session.user.role;
+
+        // Test Mode
+        if (session.user.isTestUser) {
+            const filtered = role === "admin"
+                ? mockTasks
+                : mockTasks.filter(t => t.assignedToId === userId || t.assignedToId === "test-employee-id-001");
+            return NextResponse.json(filtered);
+        }
 
         const tasks = await prisma.task.findMany({
             where:
@@ -37,10 +46,16 @@ export async function POST(request: NextRequest) {
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const role = (session.user as any).role;
+        const role = session.user.role;
         if (role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-        const userId = (session.user as any).id;
+        // Test Mode
+        if (session.user.isTestUser) {
+            const body = await request.json();
+            return NextResponse.json({ id: "mock-new-task", ...body, status: "pending", createdAt: new Date().toISOString(), _testMode: true }, { status: 201 });
+        }
+
+        const userId = session.user.id;
         const body = await request.json();
         const { title, description, projectId, priority, assignedToId, dueDate } = body;
 

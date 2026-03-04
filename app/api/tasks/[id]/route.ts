@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { mockTasks } from "@/lib/mock-data";
 
 export async function PATCH(
     request: NextRequest,
@@ -11,8 +12,15 @@ export async function PATCH(
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const userId = (session.user as any).id;
-        const role = (session.user as any).role;
+        // Test Mode
+        if (session.user.isTestUser) {
+            const body = await request.json();
+            const mock = mockTasks.find((t) => t.id === params.id) ?? mockTasks[0];
+            return NextResponse.json({ ...mock, ...body, _testMode: true });
+        }
+
+        const userId = session.user.id;
+        const role = session.user.role;
 
         const task = await prisma.task.findUnique({ where: { id: params.id } });
         if (!task) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -65,7 +73,12 @@ export async function DELETE(
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const role = (session.user as any).role;
+        // Test Mode
+        if (session.user.isTestUser) {
+            return NextResponse.json({ success: true, _testMode: true });
+        }
+
+        const role = session.user.role;
         if (role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
         // Soft delete — keep in employee history

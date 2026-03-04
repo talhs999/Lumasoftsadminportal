@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { mockNotifications } from "@/lib/mock-data";
 
 // GET /api/notifications — returns current user's notifications (newest first)
 export async function GET() {
@@ -9,7 +10,12 @@ export async function GET() {
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const userId = (session.user as any).id;
+        const userId = session.user.id;
+
+        // Test Mode
+        if (session.user.isTestUser) {
+            return NextResponse.json(mockNotifications);
+        }
 
         const notifications = await prisma.notification.findMany({
             where: { userId },
@@ -29,8 +35,11 @@ export async function PATCH(request: NextRequest) {
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        const userId = (session.user as any).id;
+        const userId = session.user.id;
         const body = await request.json();
+
+        // Test Mode
+        if (session.user.isTestUser) return NextResponse.json({ success: true, _testMode: true });
 
         if (body.markAllRead) {
             await prisma.notification.updateMany({
