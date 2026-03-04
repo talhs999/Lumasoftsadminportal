@@ -55,22 +55,17 @@ export default function LoginPage() {
         <div className="min-h-screen bg-brand-primary flex flex-col items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Logo */}
-                <div className="flex justify-center mb-8">
-                    <div className="relative">
-                        {/* Subtle green glow */}
-                        <div className="absolute inset-0 rounded-full bg-brand-accent/20 blur-xl pointer-events-none" />
-                        {/* Circle container - solid black bg */}
-                        <div className="relative w-36 h-36 rounded-full bg-black border-2 border-brand-accent/70 shadow-[0_0_30px_rgba(183,229,58,0.25)] flex items-center justify-center overflow-hidden">
-                            <Image
-                                src="/logo.png"
-                                alt="Luma Softs Logo"
-                                width={144}
-                                height={144}
-                                className="object-cover"
-                                priority
-                                quality={100}
-                            />
-                        </div>
+                <div className="flex justify-center mb-6">
+                    <div className="rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(183,229,58,0.15)]">
+                        <Image
+                            src="/logo.png"
+                            alt="Luma Softs Logo"
+                            width={200}
+                            height={200}
+                            className="object-cover block"
+                            priority
+                            quality={100}
+                        />
                     </div>
                 </div>
 
