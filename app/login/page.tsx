@@ -55,9 +55,9 @@ export default function LoginPage() {
         <div className="min-h-screen bg-brand-primary flex flex-col items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {/* Logo Card */}
-                <div className="flex justify-center mb-6">
-                    <div className="w-full max-w-[200px] flex items-center justify-center">
-                        <Image src="/logo.png" alt="Luma Softs Logo" width={200} height={80} className="object-contain drop-shadow-2xl" priority />
+                <div className="flex justify-center mb-8">
+                    <div className="w-32 h-32 rounded-full bg-black flex items-center justify-center overflow-hidden border-2 border-brand-accent shadow-2xl relative">
+                        <Image src="/logo.png" alt="Luma Softs Logo" width={160} height={160} className="object-contain scale-[1.25]" priority quality={100} />
                     </div>
                 </div>
 

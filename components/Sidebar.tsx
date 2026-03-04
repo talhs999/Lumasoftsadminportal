@@ -72,8 +72,8 @@ export default function Sidebar({
             >
                 {/* Logo */}
                 <div className="flex items-center gap-3 p-4 border-b border-brand-border min-h-[72px]">
-                    <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center">
-                        <Image src="/logo.png" alt="Luma Softs Logo" width={40} height={40} className="object-contain" priority />
+                    <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full bg-black border border-brand-accent overflow-hidden relative">
+                        <Image src="/logo.png" alt="Luma Softs Logo" width={50} height={50} className="object-contain scale-[1.3] absolute" priority quality={100} />
                     </div>
                     {!collapsed && (
                         <div className="overflow-hidden">
