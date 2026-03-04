@@ -54,10 +54,22 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen bg-brand-primary flex flex-col items-center justify-center p-4">
             <div className="w-full max-w-md">
-                {/* Logo Card */}
+                {/* Logo */}
                 <div className="flex justify-center mb-8">
-                    <div className="w-32 h-32 rounded-full bg-black flex items-center justify-center overflow-hidden border-2 border-brand-accent shadow-2xl relative">
-                        <Image src="/logo.png" alt="Luma Softs Logo" width={160} height={160} className="object-contain scale-[1.25]" priority quality={100} />
+                    <div className="relative">
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 rounded-full bg-brand-accent/20 blur-xl scale-125 pointer-events-none" />
+                        {/* Circle logo container */}
+                        <div className="relative w-36 h-36 rounded-full bg-black border-2 border-brand-accent/60 overflow-hidden shadow-2xl flex items-center justify-center">
+                            <Image
+                                src="/logo.png"
+                                alt="Luma Softs Logo"
+                                fill
+                                className="object-cover scale-[0.85]"
+                                priority
+                                quality={100}
+                            />
+                        </div>
                     </div>
                 </div>
 
