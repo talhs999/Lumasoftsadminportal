@@ -56,13 +56,13 @@ export default function LoginPage() {
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="flex justify-center mb-5">
-                    <div className="rounded-xl overflow-hidden shadow-[0_0_20px_rgba(183,229,58,0.12)]">
+                    <div className="w-[140px] h-[140px] rounded-full overflow-hidden shadow-[0_0_30px_rgba(183,229,58,0.15)]">
                         <Image
                             src="/logo.png"
                             alt="Luma Softs Logo"
-                            width={90}
-                            height={90}
-                            className="object-cover block"
+                            width={140}
+                            height={140}
+                            className="object-cover block w-full h-full"
                             priority
                             quality={100}
                         />
