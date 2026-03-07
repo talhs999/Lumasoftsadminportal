@@ -4,20 +4,24 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Plus, Edit, Eye } from "lucide-react";
 import DeleteProjectButton from "./DeleteProjectButton";
+import { mockProjects } from "@/lib/mock-data";
 
 export default async function ProjectsPage() {
     const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id;
-    const role = (session?.user as any)?.role;
+    const userId = session?.user?.id;
+    const role = session?.user?.role;
+    const isTestUser = session?.user?.isTestUser ?? false;
 
-    const projects = await prisma.project.findMany({
-        include: {
-            client: { select: { name: true } },
-            createdBy: { select: { fullName: true } },
-            tasks: { select: { id: true } },
-        },
-        orderBy: { createdAt: "desc" },
-    });
+    const projects = isTestUser
+        ? mockProjects
+        : await prisma.project.findMany({
+            include: {
+                client: { select: { name: true } },
+                createdBy: { select: { fullName: true } },
+                tasks: { select: { id: true } },
+            },
+            orderBy: { createdAt: "desc" },
+        });
 
     return (
         <div className="space-y-6">

@@ -4,11 +4,35 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import TasksClient from "./TasksClient";
+import { mockTasks } from "@/lib/mock-data";
 
 export default async function TasksPage() {
     const session = await getServerSession(authOptions);
-    const userId = (session?.user as any)?.id;
-    const role = (session?.user as any)?.role;
+    const userId = session?.user?.id;
+    const role = session?.user?.role;
+    const isTestUser = session?.user?.isTestUser ?? false;
+
+    // Test Mode: inject mock tasks, skip DB
+    if (isTestUser) {
+        return (
+            <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-xl font-bold text-brand-text">
+                            {role === "admin" ? "All Tasks" : "My Tasks"}
+                        </h1>
+                        <p className="text-brand-muted text-sm">{mockTasks.length} tasks total</p>
+                    </div>
+                    {role === "admin" && (
+                        <Link href="/dashboard/tasks/create" className="btn-primary flex items-center gap-2 text-sm">
+                            <Plus size={16} /> New Task
+                        </Link>
+                    )}
+                </div>
+                <TasksClient tasks={mockTasks as any} role={role ?? "employee"} userId={userId ?? ""} />
+            </div>
+        );
+    }
 
     const tasks = await prisma.task.findMany({
         where:
@@ -55,7 +79,7 @@ export default async function TasksPage() {
             </div>
 
             {/* Client component handles tabs, view modal, delete */}
-            <TasksClient tasks={serialised as any} role={role} userId={userId} />
+            <TasksClient tasks={serialised as any} role={role ?? "employee"} userId={userId ?? ""} />
         </div>
     );
 }
