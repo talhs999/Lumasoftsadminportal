@@ -5,6 +5,9 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 
+const MAX_ATTEMPTS = 5;          // lock after 5 failed attempts
+const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
 export const authOptions: AuthOptions = {
     providers: [
         CredentialsProvider({
@@ -23,12 +26,54 @@ export const authOptions: AuthOptions = {
                 });
 
                 if (!user) {
-                    throw new Error("No account found with this email");
+                    // Don't reveal whether email exists (security best practice)
+                    throw new Error("Invalid email or password");
+                }
+
+                // ── Brute-force lockout check ──────────────────────────────
+                if (user.lockedUntil && user.lockedUntil > new Date()) {
+                    const remaining = Math.ceil(
+                        (user.lockedUntil.getTime() - Date.now()) / 60000
+                    );
+                    throw new Error(
+                        `Account locked due to too many failed attempts. Try again in ${remaining} minute${remaining !== 1 ? "s" : ""}.`
+                    );
                 }
 
                 const isValid = await bcrypt.compare(credentials.password, user.password);
+
                 if (!isValid) {
-                    throw new Error("Invalid password");
+                    // Increment failed attempts
+                    const newAttempts = user.loginAttempts + 1;
+                    const shouldLock = newAttempts >= MAX_ATTEMPTS;
+
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: {
+                            loginAttempts: newAttempts,
+                            lockedUntil: shouldLock
+                                ? new Date(Date.now() + LOCK_DURATION_MS)
+                                : null,
+                        },
+                    });
+
+                    if (shouldLock) {
+                        throw new Error(
+                            `Too many failed attempts. Account locked for 15 minutes.`
+                        );
+                    }
+
+                    throw new Error(
+                        `Invalid email or password. ${MAX_ATTEMPTS - newAttempts} attempt${MAX_ATTEMPTS - newAttempts !== 1 ? "s" : ""} remaining.`
+                    );
+                }
+
+                // ── Login success: reset lockout counter ───────────────────
+                if (user.loginAttempts > 0 || user.lockedUntil) {
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: { loginAttempts: 0, lockedUntil: null },
+                    });
                 }
 
                 return {
@@ -70,10 +115,11 @@ export const authOptions: AuthOptions = {
     },
     session: {
         strategy: "jwt",
-        maxAge: 7 * 24 * 60 * 60, // 7 days
+        maxAge: 8 * 60 * 60, // 8 hours (was 7 days — reduced for security)
     },
     secret: process.env.NEXTAUTH_SECRET || "fallback-secret-luma-admin-portal-123",
 };
+
 
 export async function requireAuth() {
     const session = await getServerSession(authOptions);
