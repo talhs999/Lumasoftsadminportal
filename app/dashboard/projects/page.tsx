@@ -51,7 +51,7 @@ export default async function ProjectsPage() {
                                 <th className="text-left px-6 py-4">Title</th>
                                 <th className="text-left px-6 py-4">Client</th>
                                 <th className="text-left px-6 py-4">Status</th>
-                                <th className="text-left px-6 py-4">Budget</th>
+                                {role === "admin" && <th className="text-left px-6 py-4">Budget</th>}
                                 <th className="text-left px-6 py-4">Deadline</th>
                                 <th className="text-left px-6 py-4">Tasks</th>
                                 <th className="text-left px-6 py-4">Created By</th>
@@ -78,11 +78,13 @@ export default async function ProjectsPage() {
                                                 {project.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-brand-muted">
-                                            {project.budget
-                                                ? `PKR ${project.budget.toLocaleString()}`
-                                                : "—"}
-                                        </td>
+                                        {role === "admin" && (
+                                            <td className="px-6 py-4 text-sm text-brand-muted">
+                                                {project.budget
+                                                    ? `PKR ${project.budget.toLocaleString()}`
+                                                    : "—"}
+                                            </td>
+                                        )}
                                         <td className="px-6 py-4 text-sm text-brand-muted">
                                             {project.deadline
                                                 ? new Date(project.deadline).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
@@ -123,7 +125,7 @@ export default async function ProjectsPage() {
                             {projects.length === 0 && (
                                 <tr>
                                     <td
-                                        colSpan={8}
+                                        colSpan={role === "admin" ? 8 : 7}
                                         className="text-center py-14 text-brand-muted text-sm"
                                     >
                                         No projects yet.{" "}
