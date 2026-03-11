@@ -97,15 +97,17 @@ export default async function ProjectDetailPage({
                             <p className="font-medium text-brand-text">{project.client?.name ?? "—"}</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                        <Banknote size={15} className="text-brand-muted" />
-                        <div>
-                            <p className="text-xs text-brand-muted">Budget</p>
-                            <p className="font-medium text-brand-text">
-                                {project.budget ? `PKR ${project.budget.toLocaleString()}` : "—"}
-                            </p>
+                    {role === "admin" && (
+                        <div className="flex items-center gap-2 text-sm">
+                            <Banknote size={15} className="text-brand-muted" />
+                            <div>
+                                <p className="text-xs text-brand-muted">Budget</p>
+                                <p className="font-medium text-brand-text">
+                                    {project.budget ? `PKR ${project.budget.toLocaleString()}` : "—"}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    )}
                     <div className="flex items-center gap-2 text-sm">
                         <Calendar size={15} className="text-brand-muted" />
                         <div>

@@ -23,7 +23,14 @@ export async function GET(
             include: { client: true, createdBy: true, tasks: { include: { assignedTo: true } } },
         });
         if (!project) return NextResponse.json({ error: "Not found" }, { status: 404 });
-        return NextResponse.json(project);
+
+        // Hide budget from non-admin users
+        const role = session.user.role;
+        const safeProject = role === "admin"
+            ? project
+            : { ...project, budget: undefined };
+
+        return NextResponse.json(safeProject);
     } catch {
         return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 });
     }
