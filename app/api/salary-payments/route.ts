@@ -50,6 +50,20 @@ export async function POST(request: NextRequest) {
             },
         });
 
+        // Notify the employee about their salary payment
+        const paidDate = new Date(paidOn).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
+        await prisma.notification.create({
+            data: {
+                userId: employeeId,
+                title: "Salary Payment Received",
+                message: `Your salary of PKR ${parseFloat(amount).toLocaleString()} for ${month} has been paid on ${paidDate}.${note ? ` Note: ${note}` : ""}`,
+            },
+        });
+
         return NextResponse.json(payment, { status: 201 });
     } catch {
         return NextResponse.json({ error: "Failed to create salary payment" }, { status: 500 });

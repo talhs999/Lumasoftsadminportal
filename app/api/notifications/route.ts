@@ -58,3 +58,25 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: "Failed to update notifications" }, { status: 500 });
     }
 }
+
+// DELETE /api/notifications?id=xxx — delete a single notification (own only)
+export async function DELETE(request: NextRequest) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+        const userId = session.user.id;
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get("id");
+
+        if (!id) return NextResponse.json({ error: "Notification ID required" }, { status: 400 });
+
+        // Test Mode
+        if (session.user.isTestUser) return NextResponse.json({ success: true, _testMode: true });
+
+        await prisma.notification.delete({ where: { id, userId } });
+        return NextResponse.json({ success: true });
+    } catch {
+        return NextResponse.json({ error: "Failed to delete notification" }, { status: 500 });
+    }
+}

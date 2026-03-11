@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, X, CheckCheck, Clock } from "lucide-react";
+import { Bell, X, CheckCheck, Clock, Trash2 } from "lucide-react";
 
 interface Notification {
     id: string;
@@ -85,6 +85,12 @@ export default function NotificationBell() {
         );
     }
 
+    async function deleteOne(id: string) {
+        // Optimistic remove
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+        await fetch(`/api/notifications?id=${id}`, { method: "DELETE" });
+    }
+
     return (
         <div className="relative" ref={dropdownRef}>
             {/* Bell Button */}
@@ -143,10 +149,9 @@ export default function NotificationBell() {
                             </div>
                         ) : (
                             notifications.map((n) => (
-                                <button
+                                <div
                                     key={n.id}
-                                    onClick={() => !n.read && markOneRead(n.id)}
-                                    className={`w-full text-left px-4 py-3 border-b border-brand-border/50 hover:bg-white/5 transition-colors flex gap-3 ${!n.read ? "bg-brand-accent/5" : ""
+                                    className={`w-full text-left px-4 py-3 border-b border-brand-border/50 hover:bg-white/5 transition-colors flex gap-3 group ${!n.read ? "bg-brand-accent/5" : ""
                                         }`}
                                 >
                                     {/* Unread dot */}
@@ -156,7 +161,11 @@ export default function NotificationBell() {
                                                 }`}
                                         />
                                     </div>
-                                    <div className="flex-1 min-w-0">
+                                    {/* Content — click to mark read */}
+                                    <button
+                                        onClick={() => !n.read && markOneRead(n.id)}
+                                        className="flex-1 min-w-0 text-left"
+                                    >
                                         <p className={`text-sm font-medium leading-snug ${n.read ? "text-brand-muted" : "text-brand-text"}`}>
                                             {n.title}
                                         </p>
@@ -167,8 +176,16 @@ export default function NotificationBell() {
                                             <Clock size={10} />
                                             <span className="text-[10px]">{timeAgo(n.createdAt)}</span>
                                         </div>
-                                    </div>
-                                </button>
+                                    </button>
+                                    {/* Delete button */}
+                                    <button
+                                        onClick={() => deleteOne(n.id)}
+                                        className="flex-shrink-0 p-1 rounded-lg opacity-0 group-hover:opacity-100 text-brand-muted hover:text-red-400 hover:bg-red-400/10 transition-all self-start mt-0.5"
+                                        title="Delete notification"
+                                    >
+                                        <Trash2 size={13} />
+                                    </button>
+                                </div>
                             ))
                         )}
                     </div>
