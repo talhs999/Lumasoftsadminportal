@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const ADMIN_ONLY_ROUTES = ["/dashboard/employees"];
+const ADMIN_ONLY_ROUTES = ["/dashboard/employees", "/dashboard/salary-payments"];
 
 export async function middleware(request: NextRequest) {
     const token = await getToken({

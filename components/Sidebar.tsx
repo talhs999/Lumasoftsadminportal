@@ -13,6 +13,7 @@ import {
     ChevronLeft,
     ChevronRight,
     X,
+    Wallet,
 } from "lucide-react";
 
 const adminNavItems = [
@@ -21,6 +22,7 @@ const adminNavItems = [
     { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
     { href: "/dashboard/clients", label: "Clients", icon: Building2 },
     { href: "/dashboard/employees", label: "Employees", icon: Users },
+    { href: "/dashboard/salary-payments", label: "Salaries", icon: Wallet },
 ];
 
 const employeeNavItems = [

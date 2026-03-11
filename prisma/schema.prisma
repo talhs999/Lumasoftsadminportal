@@ -23,6 +23,7 @@ model User {
   createdProjects Project[]      @relation("ProjectCreator")
   assignedTasks   Task[]         @relation("TaskAssignee")
   createdTasks    Task[]         @relation("TaskCreator")
+  salaryPayments  SalaryPayment[]
 
   @@map("users")
 }
@@ -86,6 +87,19 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+model SalaryPayment {
+  id         String   @id @default(cuid())
+  employeeId String
+  amount     Float
+  month      String
+  paidOn     DateTime
+  note       String?
+  createdAt  DateTime @default(now())
+  employee   User     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("salary_payments")
 }
 
 enum Role {
